@@ -17,4 +17,3 @@ A function that allows you to retrieve kobo data from the server by providing th
 \examples{
 #kobo_data <- get_kobo_data(asset_id = "a38DR4AhAH2rDqP6e5YHLm") # TEST SURVEY
 }
-\keyword{asset}
