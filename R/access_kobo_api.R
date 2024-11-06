@@ -15,7 +15,7 @@ get_password <- function(un) {
 #' @export
 #' @examples #kobo_data <- get_kobo_data(asset_id = "a38DR4AhAH2rDqP6e5YHLm") # TEST SURVEY
 
-get_kobo_data <- function(asset_id){
+get_kobo_data <- function(asset_id, un){
 
 
   if (!require("keyring", quietly = TRUE)) install.packages("keyring")
@@ -24,7 +24,7 @@ get_kobo_data <- function(asset_id){
   library(robotoolbox)
 
 
-  un = readline(prompt = "Please input your Koob server username: ")
+#  un = readline(prompt = "Please input your Kobo server username: ")
   pw = get_password(un)
   kobo_server_url <- "https://kobo.impact-initiatives.org/"
   kobo_token_value <- kobo_token(username = un, password = pw, url = sub("\\/$","", kobo_server_url) )
