@@ -2,7 +2,12 @@
 
 export(calc_strat_samples)
 export(get_kobo_data)
+export(review_cleaning_log)
 export(update_ki_database)
+import(dplyr)
+import(openxlsx)
+import(readr)
+import(tidyr)
 importFrom(dplyr,bind_rows)
 importFrom(dplyr,distinct)
 importFrom(dplyr,mutate)

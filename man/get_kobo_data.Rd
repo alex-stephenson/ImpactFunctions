@@ -5,7 +5,7 @@
 \title{Kobo Server Query function
 A function that allows you to retrieve kobo data from the server by providing the asset ID}
 \usage{
-get_kobo_data(asset_id)
+get_kobo_data(asset_id, un)
 }
 \arguments{
 \item{asset_id}{What is the asset ID of the survey youre interested in?}
