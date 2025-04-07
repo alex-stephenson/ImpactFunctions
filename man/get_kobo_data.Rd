@@ -2,18 +2,18 @@
 % Please edit documentation in R/access_kobo_api.R
 \name{get_kobo_data}
 \alias{get_kobo_data}
-\title{Kobo Server Query function
-A function that allows you to retrieve kobo data from the server by providing the asset ID}
+\title{Kobo Server Query Function}
 \usage{
 get_kobo_data(asset_id, un)
 }
 \arguments{
-\item{asset_id}{What is the asset ID of the survey youre interested in?}
+\item{asset_id}{Character. The asset ID of the survey.}
+
+\item{un}{Character. Your Kobo username.}
+}
+\value{
+A data frame of the Kobo survey results.
 }
 \description{
-Kobo Server Query function
-A function that allows you to retrieve kobo data from the server by providing the asset ID
-}
-\examples{
-#kobo_data <- get_kobo_data(asset_id = "a38DR4AhAH2rDqP6e5YHLm") # TEST SURVEY
+Retrieve Kobo data from the server by providing the asset ID.
 }

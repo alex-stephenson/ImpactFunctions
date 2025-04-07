@@ -12,4 +12,7 @@ RoxygenNote: 7.3.2
 Imports:
     dplyr,
     ggplot2,
-    tidyr
+    tidyr,
+    robotoolbox,
+    stringr,
+    keyring
