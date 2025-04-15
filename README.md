@@ -13,12 +13,7 @@ The following functions are currently maintained in the package:
 - **`clog_check`** – Performs data quality checks for common issues in clogs.
 - **`get_kobo_metadata`** – Extracts metadata from Kobo survey forms.
 - **`calc_strat_samples`** – Calculates stratified sample sizes.
-- **`update_ki_database`** – Updates key informant database records.
-- **`update_parent_from_binaries`** – Updates parent survey questions based on binary child question responses (under review).
-
-### Under Development
-- **`create_child_binaries`** – This function is in development, pending changes to the `clog` production and completion workflow.
-- The necessity of **`update_parent_from_binaries`** is under review, as it may be replaced by `cleaningtools::recreate_parent_column()`.
+- **`update_others`** - recode parent values of others
 
 ## Installation
 You can install **ImpactFunctions** directly from GitHub using **devtools**:
@@ -28,7 +23,7 @@ You can install **ImpactFunctions** directly from GitHub using **devtools**:
 install.packages("devtools")
 
 # Install ImpactFunctions from GitHub
-devtools::install_github("your-github-username/ImpactFunctions")
+devtools::install_github("alex-stephenson/ImpactFunctions")
 ```
 
 ## Usage
