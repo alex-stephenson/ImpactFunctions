@@ -38,5 +38,7 @@ get_kobo_metadata <- function(dataset, asset_id, kobo_token = NULL, remove_geo =
   data_in_processing <- dataset %>%
     dplyr::left_join(iv_lengths)
 
-  return(data_in_processing)
+  data_and_metadata <- list(data_in_processing, audit_files_length)
+
+  return(data_and_metadata)
 }
