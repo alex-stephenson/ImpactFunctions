@@ -2,22 +2,33 @@
 % Please edit documentation in R/get_kobo_metadata.R
 \name{get_kobo_metadata}
 \alias{get_kobo_metadata}
-\title{Get Kobo Metadata Duration}
+\title{Get Kobo Interview Duration from Metadata Logs}
 \usage{
-get_kobo_metadata(dataset, asset_id, kobo_token = NULL, remove_geo = TRUE)
+get_kobo_metadata(dataset, asset_id, un, remove_geo = TRUE)
 }
 \arguments{
-\item{dataset}{the name of your survey dataframe.}
+\item{dataset}{A data frame containing your Kobo survey data.}
 
-\item{asset_id}{the id of your kobo object. Can be taken from your survey URL.}
+\item{asset_id}{A character string specifying the Kobo asset ID (found in the survey URL).}
 
-\item{kobo_token}{your kobo API key. Optional in case it is already set as a system variable.}
+\item{un}{Your Kobo username. Used to retrieve a stored password and fetch an API token.}
 
-\item{remove_geo}{whether to remove time taken to get gps coordinates from the summary. Defaults to TRUE.}
+\item{remove_geo}{Logical. If TRUE (default), durations related to GPS capture are excluded.}
+}
+\value{
+A list with:
+\describe{
+\item{df_and_duration}{The original dataset with added interview duration and metadata start time.}
+\item{audit_files_length}{The parsed audit log with duration calculations.}
+}
 }
 \description{
-Adds the duration of each interview as a column to your dataset based on the metadata logs
+Calculates interview duration using KoboToolbox metadata logs and merges
+this information with your dataset. Only the Kobo username is required;
+password is securely stored using the \code{keyring} package.
 }
 \examples{
-get_kobo_metadata(dataset = data_in_processing, asset_id = "antAdT3siLrnjTdfcdYcFY")
+\dontrun{
+get_kobo_metadata(dataset = data_in_processing, asset_id = "abc123XYZ", un = "my_kobo_username")
+}
 }
