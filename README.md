@@ -9,8 +9,7 @@ Email: [alex.stephenson@impact-initiatives.org](mailto:alex.stephenson@impact-in
 ## Functions
 The following functions are currently maintained in the package:
 
-- **`access_kobo_api`** – Retrieves survey data from the Kobo API.
-- **`clog_check`** – Performs data quality checks for common issues in clogs.
+- **`get_kobo_data`** – Retrieves survey data from the Kobo API.
 - **`get_kobo_metadata`** – Extracts metadata from Kobo survey forms.
 - **`calc_strat_samples`** – Calculates stratified sample sizes.
 - **`update_others`** - recode parent values of others
@@ -33,7 +32,7 @@ Once installed, you can load the package and use the available functions:
 library(ImpactFunctions)
 
 # Example usage
-survey_data_and_metadata <- get_kobo_metadata(dataset = data_in_processing, asset_id = "antAdT3siLrnjTdfcdYcFY")
+survey_data_and_metadata <- get_kobo_metadata(dataset = data_in_processing, asset_id = "antAdT3siLrnjTdfcdYcFY", un = "alex_stephenson")
 ```
 
 ## Contributing
