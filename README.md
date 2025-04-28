@@ -12,7 +12,8 @@ The following functions are currently maintained in the package:
 - **`get_kobo_data`** – Retrieves survey data from the Kobo API.
 - **`get_kobo_metadata`** – Extracts metadata from Kobo survey forms.
 - **`calc_strat_samples`** – Calculates stratified sample sizes.
-- **`update_others`** - recode parent values of others
+- **`update_others`** - recode parent values of others. 
+- **`create_variable_tracker`** - automatically calculates which columns have been added between clean and raw data.
 
 ## Installation
 You can install **ImpactFunctions** directly from GitHub using **devtools**:
