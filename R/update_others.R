@@ -132,6 +132,9 @@ update_others <- function(survey, choices, cleaning_log) {
   others_clog <- rbind(select_mulitple_clog, select_one_clog) %>%
     arrange(uuid)
 
-  return(others_clog)
+  cleaning_log_amended <- cleaning_logs %>%
+    filter(!(uuid %in% others_clog$uuid & str_detect(question, "other") & change_type == "change_response")) %>%
+    bind_rows(others_clog)
 
+  return(cleaning_log_amended)
 }
