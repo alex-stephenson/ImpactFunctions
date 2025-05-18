@@ -73,7 +73,7 @@ update_others <- function(survey, choices, cleaning_log) {
   ## get combination of questions and answers
   questions_and_answers <- parent_questions %>%
     select(type, name, list_name) %>%
-    left_join((choices %>% select(list_name, answer_name = name)), by = join_by(list_name == list_name)) %>%
+    left_join((choices %>% select(list_name, answer_name = name)), by = join_by(list_name == list_name), relationship = "many-to-many") %>%
     mutate(question_answer = paste0(name,"/", answer_name)) %>%
     pull(question_answer)
 
@@ -130,9 +130,10 @@ update_others <- function(survey, choices, cleaning_log) {
   select_one_clog <- rbind(update_select_one, nullify_select_one)
 
   others_clog <- rbind(select_mulitple_clog, select_one_clog) %>%
-    arrange(uuid)
+    arrange(uuid) %>%
+    mutate(new_value = as.character(new_value))
 
-  cleaning_log_amended <- cleaning_logs %>%
+  cleaning_log_amended <- cleaning_log %>%
     filter(!(uuid %in% others_clog$uuid & str_detect(question, "other") & change_type == "change_response")) %>%
     bind_rows(others_clog)
 
