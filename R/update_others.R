@@ -38,8 +38,7 @@ update_others <- function(survey, choices, cleaning_log) {
 
   ## return all questions that are other free text
   other_text_questions <- survey %>%
-    filter(type == "text" &
-             str_detect(relevant, "other"))
+    dplyr::filter(type == "text", stringr::str_detect(relevant, "(?i)'other'\\)\\s*$")) %>%
 
   ## now from these others identify what the name of the parent question is from the relevance criteria
   other_questions_strings <- other_text_questions %>%
