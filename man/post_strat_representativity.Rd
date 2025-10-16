@@ -30,8 +30,6 @@ probabilities of selection across strata.
 \examples{
 weights <- c(0.8, 1.0, 1.2, 0.9, 1.5, 0.7, 1.1, 1.3)
 post_strat_representativity(weights)
-
-
 post_strat_representativity(dataframe$weights)
 
 }
