@@ -30,9 +30,10 @@
 #' @importFrom tidyr separate_longer_delim
 #' @importFrom tibble tibble
 #' @importFrom purrr walk2
+#' @importFrom cleaningtools auto_detect_sm_parents
 #' @export
 
-create_loa <- function(kobo_survey = NULL,
+create_full_loa <- function(kobo_survey = NULL,
                        data = NULL,
                        level = 0.95,
                        group_vars = character(0),
@@ -82,12 +83,19 @@ create_loa <- function(kobo_survey = NULL,
       '_submitted_by', '_attachments', 'weights'
     )
 
-    inferred <- vapply(data, function(col) {
-      if (is.character(col)) return("prop_select_one")
-      if (is.numeric(col)) return("median:mean")
-      return(NA_character_)
-    }, character(1), USE.NAMES = TRUE)
+    sm_q <- cleaningtools::auto_detect_sm_parents(data, sm_separator = ".")
 
+    inferred <- vapply(names(data), function(colname) {
+      if (colname %in% sm_q) {
+        return("prop_select_multiple")
+      } else if (is.character(data[[colname]])) {
+        return("prop_select_one")
+      } else if (is.numeric(data[[colname]])) {
+        return("median:mean")
+      } else {
+        return(NA_character_)
+      }
+    }, character(1), USE.NAMES = TRUE)
     custom_loa <- tibble(
       analysis_var = names(inferred),
       analysis_type = as.character(inferred)
