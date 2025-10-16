@@ -7,7 +7,7 @@
 #'
 #' @param w A numeric vector containing post-stratification weights.
 #'
-#' @return A list containing:
+#' @return A list containing
 #' \describe{
 #'   \item{n}{Number of observations.}
 #'   \item{mean_weight}{Mean of weights.}
@@ -15,15 +15,14 @@
 #'   \item{cv_weight}{Coefficient of variation — how uneven the weights are.}
 #'   \item{design_effect}{Variance inflation due to weighting.}
 #'   \item{effective_n}{Equivalent unweighted sample size after weighting.}
-#'   \item{margin_of_error_95}{Approximate 95\% margin of error (in percentage points) for a proportion near 0.5.}
+#'   \item{margin_of_error_95}{Approximate 95 percent margin of error (in percentage points) for a proportion near 0.5.}
 #' }
-#'
 #' @examples
 #' weights <- c(0.8, 1.0, 1.2, 0.9, 1.5, 0.7, 1.1, 1.3)
 #' post_strat_representativity(weights)
 #' post_strat_representativity(dataframe$weights)
-#'
 #' @export
+
 post_strat_representativity <- function(w) {
 
   if(!is.numeric(w)) stop("w provided is not numeric")

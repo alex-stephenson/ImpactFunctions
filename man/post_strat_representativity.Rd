@@ -10,7 +10,7 @@ post_strat_representativity(w)
 \item{w}{A numeric vector containing post-stratification weights.}
 }
 \value{
-A list containing:
+A list containing
 \describe{
 \item{n}{Number of observations.}
 \item{mean_weight}{Mean of weights.}
@@ -18,7 +18,7 @@ A list containing:
 \item{cv_weight}{Coefficient of variation — how uneven the weights are.}
 \item{design_effect}{Variance inflation due to weighting.}
 \item{effective_n}{Equivalent unweighted sample size after weighting.}
-\item{margin_of_error_95}{Approximate 95\\% margin of error (in percentage points) for a proportion near 0.5.}
+\item{margin_of_error_95}{Approximate 95 percent margin of error (in percentage points) for a proportion near 0.5.}
 }
 }
 \description{
@@ -31,5 +31,4 @@ probabilities of selection across strata.
 weights <- c(0.8, 1.0, 1.2, 0.9, 1.5, 0.7, 1.1, 1.3)
 post_strat_representativity(weights)
 post_strat_representativity(dataframe$weights)
-
 }
