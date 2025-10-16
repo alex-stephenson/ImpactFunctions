@@ -83,7 +83,7 @@ create_full_loa <- function(kobo_survey = NULL,
       '_submitted_by', '_attachments', 'weights'
     )
 
-    sm_q <- cleaningtools::auto_detect_sm_parents(data, sm_separator = ".")
+    sm_q <- cleaningtools::auto_detect_sm_parents(data, sm_separator = sm_sep)
 
     inferred <- vapply(names(data), function(colname) {
       if (colname %in% sm_q) {
