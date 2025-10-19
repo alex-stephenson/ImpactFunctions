@@ -154,7 +154,7 @@ multi_results_table_output <- function(data = NULL,
     purrr::discard(is.na)
 
   strata_sym <- if(!is.null(strata)) {rlang::sym(strata)} else {NULL}
-  weights_sym <- if(!is.null(weights)) {rlang::sym(weights_col)} else {NULL}
+  weights_sym <- if(!is.null(weights_col)) {rlang::sym(weights_col)} else {NULL}
 
   # robust write helper
   robust_write <- function(df_main_analysis_table, path, value_columns, overwrite) {
