@@ -4,7 +4,13 @@
 \alias{update_others}
 \title{Update Change Log for Recoding "Other" Responses in a Kobo Survey}
 \usage{
-update_others(survey, choices, cleaning_log)
+update_others(
+  survey,
+  choices,
+  cleaning_log,
+  sm_sep = "/",
+  other_string = "other"
+)
 }
 \arguments{
 \item{survey}{A data frame representing the survey tool. Typically obtained from the "survey" sheet.}
@@ -12,6 +18,10 @@ update_others(survey, choices, cleaning_log)
 \item{choices}{A data frame representing the answer options. Typically obtained from the "choices" sheet.}
 
 \item{cleaning_log}{A data frame containing the cleaning log(s).}
+
+\item{sm_sep}{Separator used for select multiple questions}
+
+\item{other_string}{the string of your other select multiple binaries questions, normally "Other" or 'other'}
 }
 \value{
 A data frame with the updated change log entries.

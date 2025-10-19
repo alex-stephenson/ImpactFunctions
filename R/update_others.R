@@ -11,6 +11,8 @@
 #' @param survey A data frame representing the survey tool. Typically obtained from the "survey" sheet.
 #' @param choices A data frame representing the answer options. Typically obtained from the "choices" sheet.
 #' @param cleaning_log A data frame containing the cleaning log(s).
+#' @param sm_sep Separator used for select multiple questions
+#' @param other_string the string of your other select multiple binaries questions, normally "Other" or 'other'
 #'
 #' @return A data frame with the updated change log entries.
 #'
@@ -34,11 +36,15 @@
 #' @importFrom stringr str_detect str_extract str_remove_all str_split str_split_i
 #' @export
 
-update_others <- function(survey, choices, cleaning_log) {
+update_others <- function(survey,
+                          choices,
+                          cleaning_log,
+                          sm_sep = "/",
+                          other_string = "other") {
 
   ## return all questions that are other free text
   other_text_questions <- survey %>%
-    dplyr::filter(type == "text", stringr::str_detect(relevant, "(?i)'other'\\)\\s*$")) %>%
+    dplyr::filter(type == "text", stringr::str_detect(relevant, "(?i)'other'\\)\\s*$"))
 
   ## now from these others identify what the name of the parent question is from the relevance criteria
   other_questions_strings <- other_text_questions %>%
@@ -73,7 +79,7 @@ update_others <- function(survey, choices, cleaning_log) {
   questions_and_answers <- parent_questions %>%
     select(type, name, list_name) %>%
     left_join((choices %>% select(list_name, answer_name = name)), by = join_by(list_name == list_name), relationship = "many-to-many") %>%
-    mutate(question_answer = paste0(name,"/", answer_name)) %>%
+    mutate(question_answer = paste0(name,sm_sep, answer_name)) %>%
     pull(question_answer)
 
   ## identify whether question is select one or select multiple
@@ -89,7 +95,7 @@ update_others <- function(survey, choices, cleaning_log) {
     filter(change_type == "change_response",
            issue == "recode other") %>%
     left_join(other_parent_question, by = join_by(question == name)) %>%
-    mutate(question_answer = paste0(parent_question,"/", new_value),
+    mutate(question_answer = paste0(parent_question,sm_sep, new_value),
            answer_valid = ifelse(question_answer %in% questions_and_answers, TRUE, FALSE)) %>%
     left_join(select_type, by = join_by(parent_question == name))
 
@@ -103,7 +109,7 @@ update_others <- function(survey, choices, cleaning_log) {
     mutate(new_value = 1)
 
   turn_off_other <- update_select_multiple %>%
-    mutate(question = paste0(str_split_i(question, "/", 1), "/other"),
+    mutate(question = paste0(str_split_i(question, stringr::fixed(sm_sep), 1), sm_sep, other_string),
            new_value = 0)
 
   nullify_select_multiple <- valid_clogs %>%
@@ -133,7 +139,7 @@ update_others <- function(survey, choices, cleaning_log) {
     mutate(new_value = as.character(new_value))
 
   cleaning_log_amended <- cleaning_log %>%
-    filter(!(uuid %in% others_clog$uuid & str_detect(question, "other") & change_type == "change_response")) %>%
+    filter(!(uuid %in% others_clog$uuid & question %in% others_clog$question & change_type == "change_response")) %>%
     bind_rows(others_clog)
 
   return(cleaning_log_amended)
