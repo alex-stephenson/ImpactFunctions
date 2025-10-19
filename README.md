@@ -11,8 +11,12 @@ The following functions are currently maintained in the package:
 
 - **`get_kobo_data`** – Retrieves survey data from the Kobo API.
 - **`get_kobo_metadata`** – Extracts metadata from Kobo survey forms.
+- **`create_xlsx_cleaning_log`** -  this is a fork of the cleaningtools function but there is a drop down for recode_others, speeding up the process massively.
 - **`calc_strat_samples`** – Calculates stratified sample sizes.
-- **`update_others`** - recode parent values of others. 
+- **`update_others`** - recode parent values of others.
+- **`create_full_loa`** - This creates a loa from your data or from your tool (or both) and you can optionally provide group_vars. Any analysis_vars that are inferred from the data type are printed to the console.
+- **`create_full_loa`** - is a wrapper around the whole results table pipeline, so you just input your loa, data, tool and some other info and it makes one results table per disaggregations and one one excel file where each sheet is one of your disaggregations.
+- **`get_odds_ratio`** - Performs logistic regression between a binary outcome and multiple categorical grouping variables, returning tidy odds ratios with confidence intervals and p-values.
 - **`create_variable_tracker`** - automatically calculates which columns have been added between clean and raw data.
 
 ## Installation
