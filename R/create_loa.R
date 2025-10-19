@@ -36,7 +36,7 @@
 create_full_loa <- function(kobo_survey = NULL,
                        data = NULL,
                        level = 0.95,
-                       group_vars = character(0),
+                       group_vars = NULL,
                        sm_sep = "/",
                        print_class_type = TRUE) {
 
@@ -130,7 +130,7 @@ create_full_loa <- function(kobo_survey = NULL,
     }
   }
 
-  if (identical(group_vars, character(0))) {
+  if (is.null(group_vars) | is.na(group_vars) | missing(group_vars)) {
     group_vars_NA <- data.frame(group_var = NA)
   } else {
     group_vars_NA <- data.frame(group_var = append(NA, group_vars))

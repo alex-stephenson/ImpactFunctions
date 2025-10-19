@@ -29,9 +29,9 @@ referenced by \code{strata} and \code{weights_col}.}
 
 \item{weights}{Logical, whether to use weights. If \code{TRUE} the column named by \code{weights_col} will be used.}
 
-\item{weights_col}{Character, name of the weights column in \code{data} (default: "weights").}
+\item{weights_col}{Character, name of the weights column in \code{data} (default: "weights"). Set to NULL or leave parameter as default if weights not used.}
 
-\item{loa}{Data.frame describing the list of analyses (LOA). Must include \code{group_var}, \code{analysis_var}, and \code{analysis_type}.}
+\item{loa}{Data.frame describing the list of analyses (LOA). Must include \code{group_var}, \code{analysis_var}, and \code{analysis_type}. Set to NULL or leave parameter as default if weights not used.}
 
 \item{strata}{Character, name of the strata column to pass into \code{srvyr::as_survey_design()} (default: "sampling_framework").}
 

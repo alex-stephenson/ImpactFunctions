@@ -8,7 +8,7 @@ create_full_loa(
   kobo_survey = NULL,
   data = NULL,
   level = 0.95,
-  group_vars = character(0),
+  group_vars = NULL,
   sm_sep = "/",
   print_class_type = TRUE
 )

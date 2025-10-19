@@ -73,8 +73,8 @@ presentresults_simple_style <- function(wb, sheet, results_df) {
 #' @param data A data.frame (or tibble) containing the cleaned survey dataset. Must contain the strata and weights columns
 #'   referenced by `strata` and `weights_col`.
 #' @param weights Logical, whether to use weights. If `TRUE` the column named by `weights_col` will be used.
-#' @param weights_col Character, name of the weights column in `data` (default: "weights").
-#' @param loa Data.frame describing the list of analyses (LOA). Must include `group_var`, `analysis_var`, and `analysis_type`.
+#' @param weights_col Character, name of the weights column in `data` (default: "weights"). Set to NULL or leave parameter as default if weights not used.
+#' @param loa Data.frame describing the list of analyses (LOA). Must include `group_var`, `analysis_var`, and `analysis_type`. Set to NULL or leave parameter as default if weights not used.
 #' @param strata Character, name of the strata column to pass into `srvyr::as_survey_design()` (default: "sampling_framework").
 #' @param sm_seperator Character of the select-multiple separator used by your dataset (default: ".").
 #' @param questions The survey `survey` sheet (Kobo-style) used to create the label dictionary.
@@ -153,8 +153,8 @@ multi_results_table_output <- function(data = NULL,
     unique() %>%
     purrr::discard(is.na)
 
-  strata_sym <- rlang::sym(strata)
-  weights_sym <- rlang::sym(weights_col)
+  strata_sym <- if(!is.null(strata)) {rlang::sym(strata)} else {NULL}
+  weights_sym <- if(!is.null(weights)) {rlang::sym(weights_col)} else {NULL}
 
   # robust write helper
   robust_write <- function(df_main_analysis_table, path, value_columns, overwrite) {
@@ -206,8 +206,7 @@ multi_results_table_output <- function(data = NULL,
       dplyr::filter(is.na(group_var) | group_var == !!g) %>%
       dplyr::filter(!(group_var == analysis_var & !is.na(group_var)))
 
-    # include Overall rows first
-    loa_g <- dplyr::bind_rows(loa_g %>% dplyr::mutate(group_var = NA), loa_g)
+        #loa_g <- dplyr::bind_rows(loa_g %>% dplyr::mutate(group_var = NA), loa_g)
 
     # staged try/catch to surface stage-specific failures
     tryCatch({
