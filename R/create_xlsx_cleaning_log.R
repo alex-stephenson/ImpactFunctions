@@ -154,7 +154,7 @@ create_validation_list <- function(choices, tool, others = F) {
 
 
 
-#' Creates formatted excel for cleaning log
+#' Creates formatted excel for cleaning log. You must pass the kobo_survey and kobo_choices if you want the other drop down.
 #'
 #' @param write_list List of dataframe
 #' @param cleaning_log_name Name for cleaning log from write_list
