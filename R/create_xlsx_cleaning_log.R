@@ -63,7 +63,7 @@ create_validation_list <- function(choices, tool, others = F) {
 
   if (others) {
 
-    extra = create_other_df(tool = tool, choices = choices)
+    extra = ImpactFunctions::create_other_df(tool = tool, choices = choices)
 
     choicelist <- dplyr::bind_rows(
       choicelist,
@@ -132,7 +132,7 @@ create_xlsx_cleaning_log <- function(write_list,
 
   tryCatch(
     if (!is.null(kobo_survey) & !is.null(kobo_choices) & use_dropdown == TRUE) {
-      data.val <- create_validation_list(kobo_choices,
+      data.val <- ImpactFunctions::create_validation_list(kobo_choices,
                                          kobo_survey |> dplyr::filter(!stringr::str_detect(pattern = "(begin|end)(\\s+|_)group", type)),
                                          others = use_others)
     },

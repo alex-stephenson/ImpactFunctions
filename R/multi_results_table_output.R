@@ -80,6 +80,7 @@ presentresults_simple_style <- function(wb, sheet, results_df) {
 #' @param questions The survey `survey` sheet (Kobo-style) used to create the label dictionary.
 #' @param choices The survey `choices` sheet (Kobo-style) used to create the label dictionary.
 #' @param label_column Character. The label column in the Kobo sheet to use (default: "label::english").
+#' @param use_labels Binary for whether the results table should be made using labels or the raw names
 #' @param out_dir Character. Directory to write per-group files into (created if missing).
 #' @param file_prefix Character. Prefix used when naming per-group files (default: "Desc_Table").
 #' @param value_columns Character vector. Columns to write from the presentresults table (default: c("stat","stat_upp","stat_low","n")).
@@ -124,6 +125,7 @@ multi_results_table_output <- function(data = NULL,
                                        questions,
                                        choices,
                                        label_column = "label::english",
+                                       use_labels = TRUE,
                                        out_dir = "results_tables",
                                        file_prefix = "Desc_Table",
                                        value_columns = c("stat", "stat_upp", "stat_low", "n"),
@@ -220,21 +222,38 @@ multi_results_table_output <- function(data = NULL,
       survey_output <- analysistools::create_analysis(survey_design, loa = loa_g, sm_separator = sm_seperator)
       results_table <- survey_output$results_table
 
-      # label dictionary (use presentresults names explicitly)
-      label_dictionary <- presentresults::create_label_dictionary(
-        kobo_survey_sheet = questions,
-        kobo_choices_sheet = choices,
-        label_column = label_column,
-        results_table = results_table
-      )
+      kobo_label_review <- NULL
 
-      results_table_labeled <- presentresults::add_label_columns_to_results_table(results_table, label_dictionary)
+      if(use_labels) {
 
-      df_main_analysis_table <- presentresults::create_table_variable_x_group(
-        analysis_key = "label_analysis_key",
-        results_table = results_table_labeled,
-        value_columns = value_columns
-      )
+        kobo_label_review <- presentresults::review_kobo_labels(
+          kobo_survey_sheet = questions,
+          kobo_choices_sheet = choices,
+          label_column = label_column,
+          results_table = results_table
+        )
+
+        label_dictionary <- presentresults::create_label_dictionary(
+          kobo_survey_sheet = questions,
+          kobo_choices_sheet = choices,
+          label_column = label_column,
+          results_table = results_table
+        )
+
+        results_table_labeled <- presentresults::add_label_columns_to_results_table(results_table, label_dictionary)
+
+        df_main_analysis_table <- presentresults::create_table_variable_x_group(
+          analysis_key = "label_analysis_key",
+          results_table = results_table_labeled,
+          value_columns = value_columns
+        )
+      } else {
+        df_main_analysis_table <- presentresults::create_table_variable_x_group(
+          analysis_key = "analysis_key",
+          results_table = results_table,
+          value_columns = value_columns
+        )
+      }
 
       # NA handling
       df_main_analysis_table <- df_main_analysis_table %>%
@@ -255,7 +274,8 @@ multi_results_table_output <- function(data = NULL,
         safe_name = safe_name(g),
         table = df_main_analysis_table,
         write = write_result,
-        results_table = results_table
+        results_table = results_table,
+        kobo_label_review = kobo_label_review
       )
 
     }, error = function(e) {

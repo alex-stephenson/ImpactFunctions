@@ -14,6 +14,7 @@ multi_results_table_output(
   questions,
   choices,
   label_column = "label::english",
+  use_labels = TRUE,
   out_dir = "results_tables",
   file_prefix = "Desc_Table",
   value_columns = c("stat", "stat_upp", "stat_low", "n"),
@@ -41,6 +42,8 @@ referenced by \code{strata} and \code{weights_col}.}
 \item{choices}{The survey \code{choices} sheet (Kobo-style) used to create the label dictionary.}
 
 \item{label_column}{Character. The label column in the Kobo sheet to use (default: "label::english").}
+
+\item{use_labels}{Binary for whether the results table should be made using labels or the raw names}
 
 \item{out_dir}{Character. Directory to write per-group files into (created if missing).}
 
