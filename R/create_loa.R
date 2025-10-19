@@ -57,6 +57,10 @@ create_full_loa <- function(kobo_survey = NULL,
     stop("Must provide either tool or data")
   }
 
+  if(! group_vars %in% names(data)) {
+    stop("group vars argument passed is not present in data")
+  }
+
   if (isTRUE(use_tool)) {
     stopifnot(all(c("type", "name") %in% names(kobo_survey)))
 
@@ -163,4 +167,7 @@ create_full_loa <- function(kobo_survey = NULL,
       filter(group_var != analysis_var | is.na(group_var))
     return(output_loa)
   }
+
+
+
 }

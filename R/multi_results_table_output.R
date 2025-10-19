@@ -206,7 +206,7 @@ multi_results_table_output <- function(data = NULL,
       dplyr::filter(is.na(group_var) | group_var == !!g) %>%
       dplyr::filter(!(group_var == analysis_var & !is.na(group_var)))
 
-        #loa_g <- dplyr::bind_rows(loa_g %>% dplyr::mutate(group_var = NA), loa_g)
+    #loa_g <- dplyr::bind_rows(loa_g %>% dplyr::mutate(group_var = NA), loa_g)
 
     # staged try/catch to surface stage-specific failures
     tryCatch({
