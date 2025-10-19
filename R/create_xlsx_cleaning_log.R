@@ -1,3 +1,41 @@
+#' Create a data frame linking 'other' text questions to their parent select questions
+#'
+#' This helper function identifies text questions in the survey tool that correspond to
+#' "other (specify)" options in select questions. It then matches each "other" text
+#' question with the list of answer choices from its parent select question.
+#'
+#' @param tool A data frame representing the "survey" sheet, containing at least
+#'   the columns `type`, `name`, and `relevant`.
+#' @param choices A data frame representing the "choices" sheet, containing at least
+#'   the columns `list_name` and `name`.
+#'
+#' @return A data frame with one row per "other" text question, and two columns:
+#'   \describe{
+#'     \item{other_question}{The name of the "other" text question.}
+#'     \item{choices}{A semicolon-separated string of the answer choices associated with its parent question.}
+#'   }
+#'
+#' @details
+#' The function looks for text-type questions whose `relevant` expression ends with an `'other')`
+#' condition, then extracts their parent question name. It matches these to the corresponding
+#' select questions and compiles their answer choices from the choices sheet.
+#'
+#' @examples
+#' \dontrun{
+#' tool <- data.frame(
+#'   type = c("select_one fruit_list", "text"),
+#'   name = c("favorite_fruit", "favorite_fruit_other"),
+#'   relevant = c(NA, "${favorite_fruit} = 'other')")
+#' )
+#' choices <- data.frame(
+#'   list_name = "fruit_list",
+#'   name = c("apple", "banana", "other")
+#' )
+#'
+#' create_other_df(tool, choices)
+#' }
+#'
+#' @export
 create_other_df <- function(tool, choices) {
 
   # Step 1: Identify relevant 'other' text questions and their parent question names
@@ -31,7 +69,7 @@ create_other_df <- function(tool, choices) {
       by = "list_name",
       relationship = "many-to-many"
     ) %>%
-    dplyr::filter(answer_name != 'other') %>%
+    dplyr::filter(! answer_name %in%  c('other', 'Other')) %>%
     dplyr::group_by(other_question) %>%
     dplyr::summarise(
       choices = paste(answer_name, collapse = ";\n"),
@@ -45,6 +83,27 @@ create_other_df <- function(tool, choices) {
   return(questions_and_answers)
 }
 
+#' Create a Validation List for Data Entry
+#'
+#' This function generates a validation list to be used for data entry validation.
+#' It combines predefined validation lists with dynamically formatted choices derived from
+#' the `choices` and `tool` parameters. The resulting dataframe is intended to provide
+#' structured and valid choices for various question types.
+#'
+#' @param choices A dataframe representing the Kobo choices sheet.
+#'        Expected to have at least the columns `list_name` and `name`.
+#' @param tool A dataframe representing the Kobo survey sheet.
+#'        Expected to have at least the columns `type` and `name`.
+#' @param others Whether to include other questions, normally going to be inherited.
+#'
+#' @return A dataframe where each column corresponds to a choice list for a specific question.
+#'         Each row contains a valid choice for the question.
+#'
+#' @examples
+#' # Assume choices_df and tool_df are sample dataframes that fit the expected structure.
+#' # validation_list <- create_validation_list(choices, tool)
+#'
+#' @export
 create_validation_list <- function(choices, tool, others = F) {
   new_lists <- list(
     c("change_type_validation", "change_response;\nblank_response;\nremove_survey;\nno_action"),
@@ -63,7 +122,7 @@ create_validation_list <- function(choices, tool, others = F) {
 
   if (others) {
 
-    extra = ImpactFunctions::create_other_df(tool = tool, choices = choices)
+    extra = create_other_df(tool = tool, choices = choices)
 
     choicelist <- dplyr::bind_rows(
       choicelist,
@@ -92,6 +151,63 @@ create_validation_list <- function(choices, tool, others = F) {
   return(data.val)
 }
 
+
+
+
+#' Creates formatted excel for cleaning log
+#'
+#' @param write_list List of dataframe
+#' @param cleaning_log_name Name for cleaning log from write_list
+#' @param change_type_col Change type column name in the cleaning log
+#' @param header_front_color Hexcode for header front color (default is white)
+#' @param header_front_size Header front size (default is 12)
+#' @param header_fill_color Hexcode for header fill color (default is red)
+#' @param header_front Front name for header (default is Arial Narrow)
+#' @param body_front Front name for body (default is Arial Narrow)
+#' @param body_front_size Front size for body (default is 11)
+#' @param column_for_color Column name in the dataframe which should be used for colorizing the cell.
+#' The default is null.
+#' @param use_dropdown Use drop down lists for data validation in the cleaning log output
+#' (default is FALSE)
+#' @param use_others Binary TRUE or FALSE for whether you want recode_others to have drop down options
+#' @param sm_dropdown_type Dropdown list options for select multiple questions:
+#' "numerical" (1/0) or "logical" (TRUE/FALSE). The default is logical.
+#' @param kobo_survey Kobo survey dataframe
+#' @param kobo_choices Kobo choices dataframe
+#' @param output_path Output path. Default is NULL which will return a workbook instead of an excel file.
+#'
+#' @return save a .xlsx file or return a workbook object
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' checks_list <- cleaningtools::cleaningtools_raw_data |>
+#'   check_pii(uuid_column = "X_uuid") |>
+#'   check_duplicate(uuid_column = "X_uuid") |>
+#'   check_value(uuid_column = "X_uuid")
+#' create_combined_log(list_of_log = checks_list) |>
+#'   create_xlsx_cleaning_log()
+#'
+#' logical_check_example <- cleaningtools::cleaningtools_raw_data |>
+#'   check_logical(
+#'     check_to_perform = 'treat_cook_water == "always_treat"',
+#'     uuid_column = "X_uuid",
+#'     description = "description",
+#'     check_id = "check_4",
+#'     columns_to_clean = "treat_cook_water"
+#'   )
+#' create_combined_log(logical_check_example) |>
+#'   create_xlsx_cleaning_log(
+#'     output_path = paste0(tempdir(check = TRUE), "/cleaning_log.xlsx"),
+#'     cleaning_log_name = "cleaning_log",
+#'     change_type_col = "change_type",
+#'     kobo_survey = cleaningtools::cleaningtools_survey,
+#'     kobo_choices = cleaningtools::cleaningtools_choices,
+#'     use_dropdown = TRUE,
+#'     sm_dropdown_type = "logical"
+#'   )
+#' }
 create_xlsx_cleaning_log <- function(write_list,
                                      cleaning_log_name = "cleaning_log",
                                      change_type_col = "change_type",
@@ -132,7 +248,7 @@ create_xlsx_cleaning_log <- function(write_list,
 
   tryCatch(
     if (!is.null(kobo_survey) & !is.null(kobo_choices) & use_dropdown == TRUE) {
-      data.val <- ImpactFunctions::create_validation_list(kobo_choices,
+      data.val <- create_validation_list(kobo_choices,
                                          kobo_survey |> dplyr::filter(!stringr::str_detect(pattern = "(begin|end)(\\s+|_)group", type)),
                                          others = use_others)
     },

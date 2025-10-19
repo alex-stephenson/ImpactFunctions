@@ -57,8 +57,10 @@ create_full_loa <- function(kobo_survey = NULL,
     stop("Must provide either tool or data")
   }
 
-  if(! group_vars %in% names(data)) {
-    stop("group vars argument passed is not present in data")
+  if (!is.null(group_vars) && all(!is.na(group_vars))) {
+    if (!all(group_vars %in% names(data))) {
+      stop("One or more group_vars are not present in data")
+    }
   }
 
   if (isTRUE(use_tool)) {
@@ -83,8 +85,8 @@ create_full_loa <- function(kobo_survey = NULL,
   if (isTRUE(use_data)) {
     survey_metatdata <- c(
       '_index', '_id', '__version__', 'instanceID', '_xform_id_string',
-      'uuid', 'rootUuid', '_status', '_submission_time', '_validation_status',
-      '_submitted_by', '_attachments', 'weights'
+      'uuid', '_uuid', 'rootUuid', '_status', '_submission_time', '_validation_status',
+      '_submitted_by', '_attachments', 'weights', 'weight'
     )
 
     sm_q <- cleaningtools::auto_detect_sm_parents(data, sm_separator = sm_sep)
@@ -134,10 +136,10 @@ create_full_loa <- function(kobo_survey = NULL,
     }
   }
 
-  if (is.null(group_vars) | is.na(group_vars) | missing(group_vars)) {
+  if (is.null(group_vars) || all(is.na(group_vars))) {
     group_vars_NA <- data.frame(group_var = NA)
   } else {
-    group_vars_NA <- data.frame(group_var = append(NA, group_vars))
+    group_vars_NA <- data.frame(group_var = c(NA, group_vars))
   }
 
   if (isTRUE(use_tool) & isTRUE(use_data)) {

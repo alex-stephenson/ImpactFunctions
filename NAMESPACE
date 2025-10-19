@@ -2,7 +2,10 @@
 
 export(calc_strat_samples)
 export(create_full_loa)
+export(create_other_df)
+export(create_validation_list)
 export(create_variable_tracker)
+export(create_xlsx_cleaning_log)
 export(get_kobo_data)
 export(get_kobo_metadata)
 export(get_odds_ratios)

@@ -26,35 +26,68 @@ presentresults_simple_style <- function(wb, sheet, results_df) {
   n_rows <- nrow(results_df)
   n_cols <- ncol(results_df)
 
-  # Create styles
+  # --- Convert columns 4+ to numeric if possible so Excel will show the numFmt ---
+  if (n_cols > 3 && n_rows > 0) {
+    num_cols <- 4:n_cols
+    results_df[ , num_cols] <- lapply(results_df[ , num_cols, drop = FALSE], function(x) {
+      suppressWarnings(as.numeric(as.character(x)))
+    })
+    # overwrite the sheet data so cell types are numeric in the workbook
+    openxlsx::writeData(wb, sheet = sheet, x = results_df, startCol = 1, startRow = 1, colNames = TRUE)
+  }
+
+  # --- Create styles ---
   header_style <- openxlsx::createStyle(
-    fgFill = "#EE5859",         # red background
-    fontColour = "#FFFFFF",     # white text
+    fgFill = "#EE5859",
+    fontColour = "#FFFFFF",
     textDecoration = "bold",
     halign = "center", valign = "center",
     border = "Bottom"
   )
 
   first3_style <- openxlsx::createStyle(
-    fgFill = "#D2CBB8",         # light brown / beige
-    fontColour = "#58585A",     # grey text
+    fgFill = "#D2CBB8",
+    fontColour = "#58585A",
     halign = "left", valign = "center"
   )
 
-  # Apply header style (row 1)
-  openxlsx::addStyle(wb, sheet = sheet, style = header_style,
-                     rows = 1, cols = seq_len(n_cols), gridExpand = TRUE, stack = TRUE)
+  numeric_style <- openxlsx::createStyle(
+    numFmt = "0.00",            # 2 decimal places
+    halign = "right", valign = "center"
+  )
 
-  # Apply first-3-columns style to data rows only (rows 2 .. n_rows+1)
+  # --- Apply header style (row 1) ---
+  openxlsx::addStyle(
+    wb, sheet = sheet, style = header_style,
+    rows = 1, cols = seq_len(n_cols),
+    gridExpand = TRUE, stack = TRUE
+  )
+
+  # --- Apply first 3-column style to data rows ---
   if (n_cols >= 1 && n_rows >= 1) {
-    cols_to_style <- seq_len(min(3, n_cols))
     data_rows <- seq_len(n_rows) + 1
-    openxlsx::addStyle(wb, sheet = sheet, style = first3_style,
-                       rows = data_rows, cols = cols_to_style, gridExpand = TRUE, stack = TRUE)
+    cols_first3 <- seq_len(min(3, n_cols))
+
+    openxlsx::addStyle(
+      wb, sheet = sheet, style = first3_style,
+      rows = data_rows, cols = cols_first3,
+      gridExpand = TRUE, stack = TRUE
+    )
+
+    # --- Apply numeric style from 4th column onward ---
+    if (n_cols > 3) {
+      cols_numeric <- 4:n_cols
+      openxlsx::addStyle(
+        wb, sheet = sheet, style = numeric_style,
+        rows = data_rows, cols = cols_numeric,
+        gridExpand = TRUE, stack = TRUE
+      )
+    }
   }
 
   invisible(TRUE)
 }
+
 
 
 #' Generate multi-group results tables, save per-group files and optionally aggregate
@@ -153,6 +186,7 @@ multi_results_table_output <- function(data = NULL,
     unique() %>%
     purrr::discard(is.na)
 
+
   strata_sym <- if(!is.null(strata)) {rlang::sym(strata)} else {NULL}
   weights_sym <- if(!is.null(weights_col)) {rlang::sym(weights_col)} else {NULL}
 
@@ -202,6 +236,9 @@ multi_results_table_output <- function(data = NULL,
 
   # per-group runner
   run_for_group <- function(g) {
+
+
+
     loa_g <- loa %>%
       dplyr::filter(is.na(group_var) | group_var == !!g) %>%
       dplyr::filter(!(group_var == analysis_var & !is.na(group_var)))
@@ -212,12 +249,23 @@ multi_results_table_output <- function(data = NULL,
     tryCatch({
       # survey design
       if (isTRUE(weights)) {
-        survey_design <- data %>% srvyr::as_survey_design(strata = !!strata_sym, weights = !!weights_sym)
+
+        if (!is.null(weights_sym) && !is.numeric(dplyr::pull(data, !!weights_sym))) {
+          message("!!! Weights is not numeric... coercing to numeric")
+          data[[rlang::as_string(weights_sym)]] <- as.numeric(dplyr::pull(data, !!weights_sym))
+        }
+
+        survey_design <- data %>% srvyr::as_survey_design(strata = strata_sym,
+                                                          weights = weights_sym)
       } else {
         survey_design <- data %>% srvyr::as_survey_design(strata = !!strata_sym)
       }
 
       # heavy analysistools step
+
+      loa_g <- loa_g %>%
+        filter(analysis_var %in% colnames(data))
+
       survey_output <- analysistools::create_analysis(survey_design, loa = loa_g, sm_separator = sm_seperator)
       results_table <- survey_output$results_table
 
@@ -283,7 +331,7 @@ multi_results_table_output <- function(data = NULL,
   }
 
   # run
-  results_list <- group_names %>% set_names(purrr::map_chr(., ~ safe_name(.x))) %>% purrr::map(run_for_group)
+  results_list <- group_names %>% purrr::set_names(purrr::map_chr(., ~ safe_name(.x))) %>% purrr::map(run_for_group)
 
   summary_df <- purrr::map_dfr(results_list, function(x) {
     if (isTRUE(x$ok)) {
