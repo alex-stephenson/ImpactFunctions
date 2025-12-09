@@ -40,7 +40,7 @@ create_other_df <- function(tool, choices) {
 
   # Step 1: Identify relevant 'other' text questions and their parent question names
   other_text_questions <- tool %>%
-    dplyr::filter(type == "text", stringr::str_detect(relevant, "(?i)'other'\\)\\s*$")) %>%
+    dplyr::filter(type == "text", stringr::str_detect(relevant, "(?i)'other'")) %>%
     dplyr::mutate(
       parent_question = stringr::str_extract(relevant, "\\{([A-Za-z0-9_]+)\\}") %>%
         stringr::str_remove_all("\\{|\\}")
