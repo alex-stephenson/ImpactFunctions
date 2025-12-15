@@ -7,7 +7,9 @@
 get_kobo_data(
   asset_id,
   un,
-  server_url = "https://kobo.impact-initiatives.org/"
+  sm_sep = "/",
+  server_url = "https://kobo.impact-initiatives.org/",
+  reset_password = F
 )
 }
 \arguments{
@@ -15,7 +17,11 @@ get_kobo_data(
 
 \item{un}{Character. Your Kobo username.}
 
+\item{sm_sep}{Delimiter to use for select multiple options. Defaults to "/"}
+
 \item{server_url}{Character. Kobo server URL (default: "https://kobo.impact-initiatives.org/").}
+
+\item{reset_password}{Use parameter if you have previously input an incorrect password and want to update it.}
 }
 \value{
 A data frame of the Kobo survey results. If the survey includes roster questions then it is a list of dataframes, \code{main} and \code{hh_roster}.
