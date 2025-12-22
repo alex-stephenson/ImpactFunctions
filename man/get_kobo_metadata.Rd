@@ -2,16 +2,12 @@
 % Please edit documentation in R/get_kobo_metadata.R
 \name{get_kobo_metadata}
 \alias{get_kobo_metadata}
-\title{Get Kobo Interview Duration from Metadata Logs}
+\title{Get Kobo Interview Duration}
 \usage{
-get_kobo_metadata(dataset, asset_id, un, remove_geo = TRUE)
+get_kobo_metadata(dataset, remove_geo = TRUE)
 }
 \arguments{
 \item{dataset}{A data frame containing your Kobo survey data.}
-
-\item{asset_id}{A character string specifying the Kobo asset ID (found in the survey URL).}
-
-\item{un}{Your Kobo username. Used to retrieve a stored password and fetch an API token.}
 
 \item{remove_geo}{Logical. If TRUE (default), durations related to GPS capture are excluded.}
 }
@@ -24,8 +20,7 @@ A list with:
 }
 \description{
 Calculates interview duration using KoboToolbox metadata logs and merges
-this information with your dataset. Only the Kobo username is required;
-password is securely stored using the \code{keyring} package.
+this information with your dataset.
 }
 \examples{
 \dontrun{

@@ -1,13 +1,10 @@
-#' @title Get Kobo Interview Duration from Metadata Logs
+#' @title Get Kobo Interview Duration
 #'
 #' @description
 #' Calculates interview duration using KoboToolbox metadata logs and merges
-#' this information with your dataset. Only the Kobo username is required;
-#' password is securely stored using the `keyring` package.
+#' this information with your dataset.
 #'
 #' @param dataset A data frame containing your Kobo survey data.
-#' @param asset_id A character string specifying the Kobo asset ID (found in the survey URL).
-#' @param un Your Kobo username. Used to retrieve a stored password and fetch an API token.
 #' @param remove_geo Logical. If TRUE (default), durations related to GPS capture are excluded.
 #'
 #' @return
@@ -18,9 +15,9 @@
 #' }
 #'
 #' @import dplyr
-#' @import robotoolbox
 #' @import stringr
-#' @import keyring
+#' @import purrr
+#' @import httr2
 #'
 #' @export
 #'
@@ -28,65 +25,131 @@
 #' \dontrun{
 #' get_kobo_metadata(dataset = data_in_processing, asset_id = "abc123XYZ", un = "my_kobo_username")
 #' }
-get_kobo_metadata <- function(dataset, asset_id, un, remove_geo = TRUE) {
+get_kobo_metadata <- function(dataset,
+                              un,
+                              server_url = "https://kobo.impact-initiatives.org/",
+                              reset_password = F,
+                              remove_geo = TRUE) {
 
   ## validate if dataset exists
+
 
   if (missing(dataset) || is.null(dataset) || !is.data.frame(dataset)) {
     stop("Please provide a valid data frame to the `dataset` argument.")
   }
 
-  # Try to retrieve password from keyring
-  pw <- tryCatch({
+  if (!"_attachments" %in% colnames(dataset)) {
+    stop("Need to have the attachments column returned through the API query")
+  }
+
+  if (!"uuid" %in% colnames(dataset)) {
+    stop("uuid column not in dataset")
+  }
+
+  if (!is.list(dataset$`_attachments`)) {
+    stop("`_attachments` must be a list column returned by Kobo API.")
+  }
+
+  if (isTRUE(reset_password)) {
+    keyring::key_delete(un)
+  }
+
+  tryCatch({
     keyring::key_get(un)
   }, error = function(e) {
     keyring::key_set(un, prompt = "Please input your Kobo password. You will only have to do this once.")
     keyring::key_get(un)
   })
 
-  message("Authenticating with Kobo server...")
 
 
-  # Get token and setup Kobo API
-  kobo_server_url <- "https://kobo.impact-initiatives.org/"
-  kobo_token_value <- robotoolbox::kobo_token(
-    username = un,
-    password = pw,
-    url = sub("\\/$", "", kobo_server_url)
+  pw <- get_password(un)
+
+  clean_url <- sub("\\/$", "", server_url)
+
+  token <- robotoolbox::kobo_token(username = un, password = pw, url = clean_url)
+
+  read_audit_csv <- function(url, submission_id) {
+
+    req <- request(url) %>%
+      req_headers(Authorization = paste("Token", token))
+
+    resp <- req_perform(req)
+
+    raw <- resp_body_raw(resp)
+
+    df <- readr::read_csv(raw, show_col_types = FALSE)
+
+    # Ensure columns exist, otherwise add them
+    #needed_cols <- c("old-value", "new-value", "old_value", "new_value")
+    #present <- intersect(names(df), needed_cols)
+
+    if (!("old_value" %in% names(df))) {df$old_value <- NA_character_}
+    if (!("new_value" %in% names(df))) {df$new_value <- NA_character_}
+
+    df <- df %>%
+      mutate(
+        old_value = coalesce(
+          as.character(old_value),
+          as.character(`old-value`)
+        ),
+        new_value = coalesce(
+          as.character(new_value),
+          as.character(`new-value`)
+        )
+      ) %>%
+      select(-any_of(c("old-value", "new-value")))
+
+
+    # Ensure character type
+    df <- df %>%
+      mutate(
+        old_value = as.character(old_value),
+        new_value = as.character(new_value),
+        submission_id = submission_id
+      ) %>%
+      rename(uuid = submission_id)
+    df
+  }
+
+  attachments_expanded <- map2_df(
+    dataset$`_attachments`,
+    dataset$uuid,
+    ~ if (!is.null(.x)) {
+      mutate(.x, submission_id = .y)
+    } else {
+      NULL
+    }
   )
 
-  robotoolbox::kobo_setup(
-    url = sub("\\/$", "", kobo_server_url),
-    token = kobo_token_value
+  audit_files <- attachments_expanded %>%
+    filter(media_file_basename == "audit.csv")
+
+  audit_all <- map2_dfr(
+    audit_files$download_url,
+    audit_files$submission_id,
+    read_audit_csv
   )
-
-  message("Authenticated...")
-
-  # Retrieve and process audit files
-  audit_files <- robotoolbox::kobo_audit(x = asset_id, progress = TRUE)
-
-  audit_files_length <- audit_files %>%
-    dplyr::mutate(metadata_duration = (end_int - start_int) / 60000)
 
   if (remove_geo) {
-    audit_files_length <- audit_files_length %>%
+    audit_all <- audit_all %>%
       dplyr::filter(!stringr::str_detect(node, "geo"))
   }
 
-  iv_lengths <- audit_files_length %>%
-    dplyr::group_by(`_id`) %>%
+  audit_summary <- audit_all %>%
+    dplyr::mutate(metadata_duration = (end - start) / 60000) %>%
+    group_by(uuid) %>%
     dplyr::summarise(
       interview_duration = sum(metadata_duration, na.rm = TRUE),
-      start_time_metadata = first(start),
       .groups = "drop"
     )
 
-  data_in_processing <- dataset %>%
-    dplyr::left_join(iv_lengths, by = "_id")
+  dataset_with_audit <- dataset %>%
+    left_join(audit_summary)
 
   return(list(
-    df_and_duration = data_in_processing,
-    audit_files_length = audit_files_length
+    df_and_duration = dataset_with_audit,
+    audit_files_length = audit_all
   ))
 }
 
