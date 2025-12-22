@@ -9,6 +9,7 @@ get_kobo_data(
   un,
   sm_sep = "/",
   server_url = "https://kobo.impact-initiatives.org/",
+  lang = "english",
   reset_password = F
 )
 }
@@ -20,6 +21,8 @@ get_kobo_data(
 \item{sm_sep}{Delimiter to use for select multiple options. Defaults to "/"}
 
 \item{server_url}{Character. Kobo server URL (default: "https://kobo.impact-initiatives.org/").}
+
+\item{lang}{the language of the dataset you want to return. Default is 'english'.}
 
 \item{reset_password}{Use parameter if you have previously input an incorrect password and want to update it.}
 }

@@ -5,6 +5,9 @@
 #' this information with your dataset.
 #'
 #' @param dataset A data frame containing your Kobo survey data.
+#' @param un username for kobo
+#' @param server_url defaults to impact server
+#' @param reset_password whether you want to update your password, defaults to false.
 #' @param remove_geo Logical. If TRUE (default), durations related to GPS capture are excluded.
 #'
 #' @return

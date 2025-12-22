@@ -4,10 +4,22 @@
 \alias{get_kobo_metadata}
 \title{Get Kobo Interview Duration}
 \usage{
-get_kobo_metadata(dataset, remove_geo = TRUE)
+get_kobo_metadata(
+  dataset,
+  un,
+  server_url = "https://kobo.impact-initiatives.org/",
+  reset_password = F,
+  remove_geo = TRUE
+)
 }
 \arguments{
 \item{dataset}{A data frame containing your Kobo survey data.}
+
+\item{un}{username for kobo}
+
+\item{server_url}{defaults to impact server}
+
+\item{reset_password}{whether you want to update your password, defaults to false.}
 
 \item{remove_geo}{Logical. If TRUE (default), durations related to GPS capture are excluded.}
 }
