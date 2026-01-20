@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_xlsx_cleaning_log.R
 \name{create_xlsx_cleaning_log}
 \alias{create_xlsx_cleaning_log}
-\title{Creates formatted excel for cleaning log}
+\title{Creates formatted excel for cleaning log. You must pass the kobo_survey and kobo_choices if you want the other drop down.}
 \usage{
 create_xlsx_cleaning_log(
   write_list,
@@ -63,7 +63,7 @@ The default is null.}
 save a .xlsx file or return a workbook object
 }
 \description{
-Creates formatted excel for cleaning log
+Creates formatted excel for cleaning log. You must pass the kobo_survey and kobo_choices if you want the other drop down.
 }
 \examples{
 \dontrun{
