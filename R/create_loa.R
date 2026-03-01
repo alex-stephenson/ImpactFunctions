@@ -70,7 +70,7 @@ create_full_loa <- function(kobo_survey = NULL,
       select(type, name) %>%
       mutate(
         analysis_type = case_when(
-          type == "integer" ~ "mean:median",
+          type %in% c("integer", "decimal") ~ "mean:median",
           str_detect(type, "select_one") ~ "prop_select_one",
           str_detect(type, "select_mult") ~ "prop_select_multiple"
         ),
